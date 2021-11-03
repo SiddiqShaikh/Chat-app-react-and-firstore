@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ReactScrollWheelHandler from "react-scroll-wheel-handler";
-import * as Scroll from 'react-scroll';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import './style.css';
 import Layout from '../../components/Layout'
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,6 +26,7 @@ const HomePage = (props) => {
     const [chatuser, setChatuser] = useState('')
     const [message, setMessage] = useState('')
     const [useruid, SetUseruid] = useState(null)
+
     let unsubscribe;
     useEffect(() => {
         unsubscribe = dispatch(getRealtimeuser(auth.uid))
@@ -41,7 +40,6 @@ const HomePage = (props) => {
     }, [])
 
     console.log("USER", user)
-
 
     useEffect(() => {
         return () => {
@@ -70,69 +68,20 @@ const HomePage = (props) => {
                 })
         }
         console.log(msgObj)
-
     }
     console.log("DISPLAY VALUE", user)
-    // var lastScrollTop = 0;
-    // const scroll = () => {
-    //     var st = window.pageYOffset || document.documentElement.scrollTop;
-    //     if (st > lastScrollTop) {
-    //         user.users.map
-    //             (_user => {
-    //                 return (
-
-    //                     dispatch(getRealtimeconversation({ uid_1: auth.uid, uid_2: _user.uid }))
-
-
-    //                 )
-    //             })
-
-    //     } else {
-            
-
-    //     }
-       
-    // }
-    // element should be replaced with the actual target element on which you have applied scroll, use window in case of no target element.
-    // window.addEventListener("scroll", scroll)
-    
-    // window.addEventListener("wheel", myFunction)
-    
-  
-    
     function myFunction(event) {
-        if(event.deltaY<0){
-        console.log("calling",user);
+        if (event.deltaY < 0) {
+            console.log("calling", user);
 
-        user.users.map
-        (_user => {
-            return (
-                dispatch(getRealtimeconversation({ uid_1: auth.uid, uid_2: _user.uid }))
-                )
-        })
+            user.users.map
+                (_user => {
+                    return (
+                        dispatch(getRealtimeconversation({ uid_1: auth.uid, uid_2: _user.uid }))
+                    )
+                })
+        }
     }
-    else if(event.deltaY>0){
-        console.log("DOWN")
-
-    }
-    
-     
-       
-
-
-    }
-  
-// useEffect(() => {
-//     if(user.display==true){
-//         myFunction()
-//     }
-
-// }, [myFunction])
-   
-    
-   
-    
-      
 
     return (
         <Layout>
@@ -155,40 +104,25 @@ const HomePage = (props) => {
                         chatstart ? chatuser : null
                     }</div>
                     <div id="messageSections" className="messageSections">
-                    <ReactScrollWheelHandler
-                                                    upHandler={myFunction}
-                                                    style={{
-                                                        width: "100%",
-                                                        height: "100%",
-                                                    }}
-                                                >
-          
-                        {
-                            
-                            user.users.length > 0 ?
-                                user.users.map
-                                    (_user => {
-                                        return (
-                                            user.display === true ?
-                                                <div ></div>
-                                                : null
-                                        )
-                                    }) : null
-                            // user.display === true ?
-                            //     <button  onClick={() => {
-                            //         console.log("UIDS", auth.uid, _user.uid)
-                            //         dispatch(getRealtimeconversation({ uid_1: auth.uid, uid_2: _user.uid }))
-                            //     }}>more</button>:null
-                            // )} ): null
-                        }
-                        {chatstart ?
-                            user.conversations.map(con => <div style={{ textAlign: con.user_uid_1 == auth.uid ? 'right' : 'left' }}>
-                                <p className="messageStyle" >{con.message}</p>
-                            </div>)
-                            : null}
 
 
-                    </ReactScrollWheelHandler>
+                        <ReactScrollWheelHandler
+                            upHandler={myFunction}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                            }}
+                        >
+
+
+                            {chatstart ?
+                                user.conversations.map(con => <div style={{ textAlign: con.data().user_uid_1 == auth.uid ? 'right' : 'left' }}>
+                                    <p className="messageStyle" >{con.data().message}</p>
+                                </div>)
+                                : null}
+
+
+                        </ReactScrollWheelHandler>
                     </div>
 
                     {chatstart ? <div className="chatControls">

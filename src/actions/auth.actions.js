@@ -97,7 +97,6 @@ export const signin = (user) => {
                                 type: `${authConstants.USER_LOGIN}_SUCCESS`,
                                 payload: { user: loggedInUser }
                             })
-                            // ...
                         })
                         .catch(error => {
                             console.log(error)
@@ -142,7 +141,6 @@ export const signout = (uid) => {
     return async (dispatch) => {
         dispatch({ type: `${authConstants.USER_LOGOUT}_REQUEST` })
         const db = getFirestore();
-        // console.log('doc(db,"users",uid)',doc(db,"users",where("uid", "==", uid)))
         console.log("uid", uid);
         const q = query(collection(db, "users"), where('uid', '==', uid));
         const rec = await getDocs(q);
@@ -155,7 +153,6 @@ export const signout = (uid) => {
                     const auth = getAuth();
                     signOut(auth)
                         .then(() => {
-                            // Sign-out successful.
                             localStorage.clear()
                             dispatch({ type: `${authConstants.USER_LOGOUT}_SUCCESS` })
 
@@ -175,23 +172,3 @@ export const signout = (uid) => {
 
     }
 }
-// export const signout=(uid)=>{
-//     return async (dispatch)=>{
-//      dispatch({ type: `${authConstants.USER_LOGOUT}_REQUEST` })
-
-
-//          const auth = getAuth();
-//          signOut(auth)
-//          .then(() => {
-//            // Sign-out successful.
-//            localStorage.clear()
-//            dispatch({ type: `${authConstants.USER_LOGOUT}_SUCCESS` })
-
-//          })
-//          .catch((error) => {
-//           console.log(error)
-//           dispatch({ type: `${authConstants.USER_LOGOUT}_ERROR` })
-//          });
-
-
-//  }}

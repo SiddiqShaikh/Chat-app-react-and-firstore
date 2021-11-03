@@ -1,13 +1,13 @@
 import { userConstants } from "./constants"
 import { addDoc, collection, query, where, onSnapshot, getFirestore, getDocs, orderBy, limit, startAfter, startAt } from "firebase/firestore";
-import { useState } from "react";
+
 
 export const getRealtimeuser = (uid) => {
     return async (dispatch) => {
         dispatch({ type: `${userConstants.GET_REALTIME_USER}_REQUEST` })
         const db = getFirestore()
         const q = query(collection(db, "users"),
-            // where("state", "!=", uid)
+
         );
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const users = [];
@@ -18,7 +18,6 @@ export const getRealtimeuser = (uid) => {
                 }
 
             });
-            //   console.log("users",doc);
 
             dispatch({
                 type: `${userConstants.GET_REALTIME_USER}_SUCCESS`,
@@ -48,68 +47,6 @@ export const updateMessage = (msgObj) => {
     }
 }
 
-// export const getRealtimeconversation = (user) => {
-//     return async (dispatch) => {
-//         const db = getFirestore()
-//         console.log("RRRRR")
-
-//         const q = query(collection(db, "conversations"), where('user_uid_1', 'in', [user.uid_1, user.uid_2]), orderBy("createdAt", "desc"),limit(5));
-//         onSnapshot(q, (querySnapshot) => {
-//             const conversations = [];
-//             querySnapshot.forEach((doc) => {
-
-//                 if ((doc.data().user_uid_1 == user.uid_1 && doc.data().user_uid_2 == user.uid_2)
-//                     || doc.data().user_uid_1 == user.uid_2 && doc.data().user_uid_2 == user.uid_1
-//                 ) {
-
-//                     conversations.push(doc.data())
-
-//                 }
-//                 if (conversations.length > 0) {
-//                     dispatch({
-//                         type: userConstants.GET_REALTIME_MESSAGE,
-//                         payload: { conversations }
-//                     })
-//                 }
-//                 else {
-//                     dispatch({
-//                         type: `${userConstants.GET_REALTIME_MESSAGE}_ERROR`,
-//                         payload: { conversations }
-//                     })
-//                 }
-//             });
-//             // console.log(conversations)
-//         })
-
-
-//     }
-
-
-
-// }
-
-
-// const getPost = async (scope,postId) => {
-//     const db = getFirestore()
-//     const q = query(collection(db, "conversations"))
-//         const rec = await getDocs(q);
-//     let collectionRef;
-//     if (scope !== null) {
-//       collectionRef = scope;
-//     }
-//     else {
-//         const collectionRef = query(collection(db, "conversations"))
-//         const rec = await getDocs(collectionRef);
-//     }
-
-//     return collectionRef
-//       .doc(postId)
-//       .get(rec)
-//       .then((data)=>{
-//         return data.data()
-//       })
-//       .catch((err)=>{console.error(err)});
-//   }
 var lastVisible;
 var conversations = [];
 var n = 5
@@ -131,27 +68,38 @@ export const getRealtimeconversation = (user) => {
             }
             return onSnapshot(q, (querySnapshot) => {
                 querySnapshot.docChanges().forEach(async (change) => {
-                    console.log("change type", change.type, change.doc.data());
+                    console.log("change type", change.type, change.doc);
                     if ((change.doc.data().user_uid_1 == user.uid_1 && change.doc.data().user_uid_2 == user.uid_2)
                         || change.doc.data().user_uid_1 == user.uid_2 && change.doc.data().user_uid_2 == user.uid_1
                     ) {
                         console.log("running if");
-                        if (change.type == "added") {
+                        if (change.type === "added") {
                             let index = conversations.findIndex(x => x.id === change.doc.id);
+                            console.log("add if index",index)
+                            conversations = [...conversations];
                             if (index === -1 && change.newIndex === 0) {
-                                conversations.push(change.doc.data());
+                                conversations.push(change.doc);
+                                
                             } else {
-                                conversations.unshift(change.doc.data())
+                                conversations.unshift(change.doc)
+                                
                             }
-                            // 
+                            console.log("ADDED",conversations)
+                             
                         }
-                        else if (change.type == "removed") {
+                         if (change.type === "removed") {
+                            
 
-                                let index = conversations.findIndex(x => x.id === change.doc.data().id);
-                                if (index !== -1) {
+                                let index = conversations.findIndex(x => x.id === change.doc.id);
+
+                                console.log("remove if index",index,"change.doc.data().id",change.doc.id)
+                                conversations = [...conversations];
+                                if (index!=-1) {
                                     conversations.splice(index, 1);
+                                 
                                 }
-    
+
+                                console.log("Removed data", change.doc,"convo",conversations)
     
                             }
                         
@@ -173,37 +121,7 @@ export const getRealtimeconversation = (user) => {
                     }
                 })
             })
-            // return onSnapshot(q, (querySnapshot) => 
-            // {
-
-
-            //     querySnapshot.forEach((doc) => {
-            //         console.log("Snapshot",doc)
-            //         if ((doc.data().user_uid_1 == user.uid_1 && doc.data().user_uid_2 == user.uid_2)
-            //             || doc.data().user_uid_1 == user.uid_2 && doc.data().user_uid_2 == user.uid_1
-            //         ) {
-
-            //             conversations.unshift(doc.data())
-
-            //         }
-            // if (conversations.length > 0) {
-            //     console.log("DISPLAY VALUE FROM ACTION 1",display)
-            //     dispatch({
-            //         type: userConstants.GET_REALTIME_MESSAGE,
-            //         payload: { conversations, display }
-            //     })
-            // }
-            // else {
-            //     dispatch({
-            //         type: `${userConstants.GET_REALTIME_MESSAGE}_ERROR`,
-            //         payload: { conversations,display }
-            //     })
-            // }
-            //     });
-            //     console.log("conversations", conversations)
-            // })
-
-
+            
         }
 
         else {
@@ -226,19 +144,28 @@ export const getRealtimeconversation = (user) => {
                         || change.doc.data().user_uid_1 == user.uid_2 && change.doc.data().user_uid_2 == user.uid_1
                     ) {
                         console.log("running if");
-                        if (change.type == "added") {
-                            let index = conversations.findIndex(x => x.id === change.doc.data().id);
+                        if (change.type === "added") {
+                            let index = conversations.findIndex(x => x.id === change.doc.id);
+                            console.log("add if index",index)
+                            conversations = [...conversations];
                             if (index === -1 && change.newIndex === 0) {
-                                conversations.push(change.doc.data());
+                                conversations.push(change.doc)
+                                
+                                
                             } else {
-                                conversations.unshift(change.doc.data())
+                                conversations.unshift(change.doc)
+                                
+                            
                             }
                         }
-                        else if (change.type == "removed") {
-
-                            let index = conversations.findIndex(x => x.id === change.doc.data().id);
-                            if (index !== -1) {
+                        if (change.type === "removed") {
+                            console.log("Removed data",change.doc.data())
+                            let index = conversations.findIndex(x => x.id === change.doc.id);
+                            console.log("remove if index",index)
+                            conversations = [...conversations];
+                            if (index!==-1) {
                                 conversations.splice(index, 1);
+                                
                             }
 
 
@@ -261,40 +188,7 @@ export const getRealtimeconversation = (user) => {
                     }
                 })
             })
-            // return onSnapshot(q, (querySnapshot) => 
-            // {
-            //     if(querySnapshot.docs.length > 0){
-            //         querySnapshot.forEach((doc) => {
-            //             if ((doc.data().user_uid_1 == user.uid_1 && doc.data().user_uid_2 == user.uid_2)
-            //                 || doc.data().user_uid_1 == user.uid_2 && doc.data().user_uid_2 == user.uid_1
-            //             ) {
-
-            //                 conversations.unshift(doc.data())
-
-            //             }
-            //             if (conversations.length > 0) {
-            //                 console.log("DISPLAY VALUE FROM ACTION 2",display)
-            //                 dispatch({
-            //                     type: userConstants.GET_REALTIME_MESSAGE,
-            //                     payload: { conversations, display }
-            //                 })
-            //             }
-            //             else {
-            //                 dispatch({
-            //                     type: `${userConstants.GET_REALTIME_MESSAGE}_ERROR`,
-            //                     payload: { conversations, display }
-            //                 })
-            //             }
-            //         });
-            //     }else{
-            //         dispatch({
-            //             type: userConstants.GET_REALTIME_MESSAGE,
-            //             payload: { conversations, display }
-            //         })
-            //     }
-
-            //     console.log(conversations)
-            // })
+            
         }
 
     }
